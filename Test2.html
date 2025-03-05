@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Essex Rebels Volleyball Coach Assistant</title>
+  <style>
+    /* BASE & THEME VARIABLES */
+    :root {
+      /* Dark Theme */
+      --bg-gradient: linear-gradient(135deg, #1c1c1c, #000);
+      --text-color: #e0e0e0;
+      --header-bg: linear-gradient(90deg, #b30000, #800000);
+      --sidebar-bg: #2a2a2a;
+      --card-bg: #1c1c1c;
+      --button-bg: #b30000;
+      --button-hover: #800000;
+      --accent: #ffcc00;
+      
+      /* Light Theme (if toggled) */
+      --bg-gradient-light: #f2f2f2;
+      --text-color-light: #333;
+      --header-bg-light: #004466;
+      --sidebar-bg-light: #e6e6e6;
+      --card-bg-light: #fff;
+      --button-bg-light: #0077cc;
+      --button-hover-light: #005fa3;
+      --accent-light: #ff9900;
+    }
+    
+    /* GLOBAL RESET */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      transition: background 0.3s, color 0.3s;
+    }
+    a { text-decoration: none; color: inherit; }
+    
+    /* LOGIN SCREEN STYLES */
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: var(--bg-gradient);
+      padding: 20px;
+    }
+    .login-container {
+      background: rgba(42, 42, 42, 0.95);
+      border-radius: 10px;
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+    .login-container h2 {
+      margin-bottom: 25px;
+      color: var(--accent);
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 14px 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      background: #333;
+      color: var(--text-color);
+      font-size: 16px;
+    }
+    .login-container input::placeholder {
+      color: #aaa;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 5px;
+      background: var(--button-bg);
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .login-container button:hover {
+      background: var(--button-hover);
+    }
+    #loginOptions {
+      margin: 15px 0;
+      font-size: 15px;
+      text-align: left;
+    }
+    #loginOptions label {
+      margin-right: 20px;
+      color: var(--text-color);
+    }
+    
+    /* HEADER & NAVIGATION */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--header-bg);
+      padding: 20px 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      z-index: 1000;
+    }
+    /* Header container using flexbox */
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #headerTitle {
+      flex-grow: 1;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .header-btn {
+      background: #660000;
+      border: none;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .header-btn:hover { background: #440000; }
+    .toggle-sidebar { }
+    .theme-toggle { }
+    
+    main {
+      display: flex;
+      margin-top: 90px;
+      min-height: calc(100vh - 90px);
+    }
+    nav {
+      width: 220px;
+      background: var(--sidebar-bg);
+      padding: 20px;
+      height: calc(100vh - 90px);
+      position: fixed;
+      top: 90px;
+      left: 0;
+      overflow-y: auto;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.6);
+      transition: transform 0.3s;
+    }
+    nav.hidden { transform: translateX(-240px); }
+    nav ul { list-style: none; padding: 0; }
+    nav ul li { margin-bottom: 20px; }
+    nav ul li a {
+      display: block;
+      padding: 10px;
+      border-radius: 4px;
+      background: #3a3a3a;
+      color: var(--text-color);
+      transition: background 0.3s;
+    }
+    nav ul li a:hover { background: #555; }
+    .content {
+      margin-left: 240px;
+      padding: 20px;
+      width: calc(100% - 240px);
+      transition: margin-left 0.3s;
+    }
+    section.content > section { display: none; }
+    section.content > section.active { display: block; }
+    
+    /* CARD & DASHBOARD STYLES */
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      margin-bottom: 20px;
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card h2 {
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 5px;
+      color: var(--accent);
+      font-size: 20px;
+    }
+    .dashboard-countdowns {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 5px;
+      padding: 15px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .dashboard-countdowns h3 {
+      margin-top: 0;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    
+    /* RESPONSIVE ADJUSTMENTS */
+    @media (max-width: 768px) {
+      nav { position: relative; width: 100%; height: auto; box-shadow: none; }
+      .content { margin-left: 0; }
+    }
+  </style>
+</head>
+<body onload="initPage()">
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen">
+    <div class="login-container">
+      <h2>Coach / Admin Login</h2>
+      <input type="text" id="coachUsername" placeholder="Username">
+      <input type="password" id="coachPassword" placeholder="Password">
+      <div id="loginOptions">
+        <label><input type="radio" name="userRole" value="coach" checked> Coach</label>
+        <label><input type="radio" name="userRole" value="admin"> Admin</label>
+      </div>
+      <button onclick="login()">Login</button>
+    </div>
+  </div>
+  
+  <!-- MAIN INTERFACE -->
+  <header id="mainHeader" style="display:none;">
+    <div class="header-container">
+      <button class="header-btn toggle-sidebar" id="toggleSidebarBtn" onclick="toggleSidebar()">☰</button>
+      <span id="headerTitle">Essex Rebels Volleyball Coach Assistant</span>
+      <div class="header-actions">
+        <button class="header-btn theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">☀</button>
+        <button class="header-btn" id="resetBtn" onclick="resetData()">Reset Data</button>
+        <button class="header-btn" id="logoutBtn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+  
+  <main id="mainContainer" style="display:none;">
+    <nav id="sidebar">
+      <ul>
+        <li><a href="#" onclick="showSection('dashboard')">Dashboard</a></li>
+        <li><a href="#" onclick="showSection('tasks')">Tasks</a></li>
+        <li><a href="#" onclick="showSection('matches')">Matches</a></li>
+        <li><a href="#" onclick="showSection('calendar')">Calendar</a></li>
+        <li><a href="#" onclick="showSection('reminders')">Reminders</a></li>
+        <li><a href="#" onclick="showSection('importantEvents')">Important Events</a></li>
+        <li><a href="#" onclick="showSection('injuryTracker')">Injury Tracker</a></li>
+        <li><a href="#" onclick="showSection('practiceManagement')">Practice Management</a></li>
+        <li><a href="#" onclick="showSection('communicationBoard')">Communication Board</a></li>
+        <li><a href="#" onclick="showSection('documentEditor')">Document</a></li>
+        <li><a href="#" onclick="showSection('winLoss')">Win/Loss</a></li>
+        <li><a href="#" onclick="showSection('leagues')">Leagues</a></li>
+        <li><a href="#" onclick="showSection('pdfUpload')">PDF Upload</a></li>
+        <li><a href="#" onclick="showSection('readingList')">Reading List</a></li>
+        <li><a href="#" onclick="showSection('teamManagement')">Team Management</a></li>
+        <li><a href="#" onclick="showSection('inventoryTracker')">Inventory Tracker</a></li>
+      </ul>
+    </nav>
+    
+    <section class="content" id="contentArea">
+      <!-- UPDATED DASHBOARD SECTION -->
+      <section id="dashboard" class="active">
+        <div class="card">
+          <h2>Dashboard</h2>
+          <div class="dashboard-countdowns">
+            <h3>Important Events Countdown</h3>
+            <ul id="dashboardCountdownList"></ul>
+          </div>
+          <div class="card">
+            <h2>Match Calendar</h2>
+            <div id="calendarContent"></div>
+            <div id="nextMatchCountdown">Next Match Countdown: Not Set</div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- TASKS SECTION -->
+      <section id="tasks">
+        <div class="card">
+          <h2>Tasks</h2>
+          <input type="text" id="taskInput" placeholder="Enter a new task">
+          <button onclick="addTask()">Add Task</button>
+          <ul id="taskList"></ul>
+        </div>
+      </section>
+      
+      <!-- MATCHES SECTION (Updated with time input) -->
+      <section id="matches">
+        <div class="card">
+          <h2>Matches</h2>
+          <input type="date" id="matchDate">
+          <input type="time" id="matchTime" placeholder="Time">
+          <input type="text" id="matchOpponent" placeholder="Opponent">
+          <input type="text" id="matchLocation" placeholder="Location">
+          <select id="matchType">
+            <option value="League">League</option>
+            <option value="Friendly">Friendly</option>
+            <option value="Tournament">Tournament</option>
+          </select>
+          <button onclick="addMatch()">Add Match</button>
+          <ul id="matchList"></ul>
+          <div id="nextMatchCountdown">Next Match Countdown: Not Set</div>
+        </div>
+      </section>
+      
+      <!-- CALENDAR SECTION -->
+      <section id="calendar">
+        <div class="card">
+          <h2>Calendar</h2>
+          <div id="calendarContent"></div>
+          <button onclick="exportCalendarToExcel()">Export Calendar to Excel (CSV)</button>
+          <button onclick="exportCalendarToICS()">Export Calendar to ICS</button>
+          <!-- New Add Event Button -->
+          <button onclick="addEventPrompt()">Add Event</button>
+        </div>
+      </section>
+      
+      <!-- REMINDERS SECTION -->
+      <section id="reminders">
+        <div class="card">
+          <h2>Reminders</h2>
+          <input type="text" id="reminderText" placeholder="Reminder text">
+          <input type="datetime-local" id="reminderTime">
+          <button onclick="addReminder()">Add Reminder</button>
+          <ul id="reminderList"></ul>
+        </div>
+      </section>
+      
+      <!-- IMPORTANT EVENTS SECTION -->
+      <section id="importantEvents">
+        <div class="card">
+          <h2>Important Events Countdown</h2>
+          <input type="text" id="importantEventTitleInput" placeholder="Enter Event Title">
+          <input type="datetime-local" id="importantDateInput">
+          <button onclick="addImportantEvent()">Add Important Event</button>
+          <ul id="importantEventsList"></ul>
+        </div>
+      </section>
+      
+      <!-- INJURY TRACKER SECTION -->
+      <section id="injuryTracker">
+        <div class="card">
+          <h2>Injury Tracker</h2>
+          <input type="text" id="injuryPlayerName" placeholder="Player Name">
+          <label for="injuryDate">Injury Date</label>
+          <input type="date" id="injuryDate">
+          <label for="recoveryDate">Expected Recovery Date</label>
+          <input type="date" id="recoveryDate">
+          <textarea id="injuryNotes" placeholder="Injury Notes"></textarea>
+          <button onclick="addInjuryRecord()">Add Injury Record</button>
+          <ul id="injuryList"></ul>
+        </div>
+      </section>
+      
+      <!-- PRACTICE MANAGEMENT SECTION -->
+      <section id="practiceManagement">
+        <div class="card">
+          <h2>Practice Management</h2>
+          <input type="date" id="practiceDate">
+          <input type="text" id="drillName" placeholder="Drill Name">
+          <textarea id="drillDescription" placeholder="Drill Description"></textarea>
+          <button onclick="addPractice()">Add Practice Drill</button>
+          <ul id="practiceList"></ul>
+        </div>
+      </section>
+      
+      <!-- COMMUNICATION BOARD SECTION -->
+      <section id="communicationBoard">
+        <div class="card">
+          <h2>Communication Board</h2>
+          <div id="emailRegistrationContainer">
+            <input type="email" id="commEmail" placeholder="Enter your email">
+            <button onclick="registerEmail()">Register Email</button>
+            <p id="registeredEmailDisplay"></p>
+          </div>
+          <input type="text" id="announcementText" placeholder="Post an announcement">
+          <button onclick="addAnnouncement()">Post Announcement</button>
+          <ul id="announcementList"></ul>
+        </div>
+      </section>
+      
+      <!-- DOCUMENT EDITOR SECTION -->
+      <section id="documentEditor">
+        <div class="card">
+          <h2>Document</h2>
+          <textarea id="docText" placeholder="Write your ideas here..."></textarea>
+          <button onclick="saveDocument()">Save Document</button>
+          <button onclick="exportDocumentToWord()">Export to Word</button>
+        </div>
+      </section>
+      
+      <!-- WIN/LOSS TRACKER SECTION -->
+      <section id="winLoss">
+        <div class="card">
+          <h2>Win/Loss Tracker &amp; Competitions</h2>
+          <div>
+            Global Wins: <span id="winsCount">0</span>
+            <button onclick="adjustWinsTracker(1)">+1 Win</button>
+            <button onclick="adjustWinsTracker(-1)">-1 Win</button>
+          </div>
+          <div>
+            Global Losses: <span id="lossesCount">0</span>
+            <button onclick="adjustLossesTracker(1)">+1 Loss</button>
+            <button onclick="adjustLossesTracker(-1)">-1 Loss</button>
+          </div>
+          <div>
+            <label for="competitionType">Competition Type:</label>
+            <select id="competitionType">
+              <option value="League">League</option>
+              <option value="Friendly">Friendly</option>
+              <option value="Tournament">Tournament</option>
+            </select>
+            <button onclick="addCompetition()">Add Competition Result</button>
+          </div>
+          <div>
+            <input type="text" id="newCompetitionInput" placeholder="New Competition Type">
+            <button onclick="addNewCompetition()">Add New Competition</button>
+          </div>
+          <div id="competitionResults"></div>
+        </div>
+      </section>
+      
+      <!-- LEAGUES SECTION -->
+      <section id="leagues">
+        <div class="card">
+          <h2>Leagues &amp; Teams</h2>
+          <input type="text" id="leagueNameInput" placeholder="Enter new league name">
+          <button onclick="addLeague()">Add League</button>
+          <div id="leaguesContainer"></div>
+        </div>
+      </section>
+      
+      <!-- PDF UPLOAD SECTION -->
+      <section id="pdfUpload">
+        <div class="card">
+          <h2>PDF Upload</h2>
+          <input type="file" id="pdfInput" accept="application/pdf" multiple>
+          <div id="pdfList"></div>
+        </div>
+      </section>
+      
+      <!-- READING LIST SECTION -->
+      <section id="readingList">
+        <div class="card">
+          <h2>Reading List</h2>
+          <input type="text" id="readingInput" placeholder="Enter reading item">
+          <button onclick="addReading()">Add to Reading List</button>
+          <ul id="readingListItems"></ul>
+        </div>
+      </section>
+      
+      <!-- TEAM MANAGEMENT SECTION -->
+      <section id="teamManagement">
+        <div class="card">
+          <h2>Team Management</h2>
+          <input type="text" id="teamMemberName" placeholder="Enter team member name">
+          <input type="text" id="teamMemberPosition" placeholder="Enter position/role">
+          <button onclick="addTeamMember()">Add Team Member</button>
+          <button onclick="exportTeamManagementToExcel()">Export Team to Excel</button>
+          <ul id="teamMembersList"></ul>
+          <!-- PLAYER REVIEWS SUB-SECTION -->
+          <div class="card" style="margin-top:20px;">
+            <h2>Player Reviews</h2>
+            <input type="text" id="reviewPlayerName" placeholder="Enter player's name">
+            <input type="number" id="reviewRating" placeholder="Rating (1-5)" min="1" max="5">
+            <input type="number" id="reviewScore" placeholder="Performance Score">
+            <textarea id="reviewText" placeholder="Enter review"></textarea>
+            <button onclick="addPlayerReview()">Add Review</button>
+            <ul id="playerReviewsList"></ul>
+          </div>
+        </div>
+      </section>
+      
+      <!-- INVENTORY TRACKER SECTION -->
+      <section id="inventoryTracker">
+        <div class="card">
+          <h2>Inventory Tracker</h2>
+          <input type="text" id="inventoryItemName" placeholder="Enter inventory item name">
+          <input type="number" id="inventoryItemQuantity" placeholder="Enter quantity">
+          <button onclick="addInventoryItem()">Add Inventory Item</button>
+          <button onclick="exportInventoryToExcel()">Export Inventory to Excel</button>
+          <ul id="inventoryList"></ul>
+        </div>
+      </section>
+    </section>
+  </main>
+  
+  <script>
+    /* GLOBAL VARIABLES */
+    let currentCoach = "";
+    let userRole = "coach";
+    let tasks = [], matches = [], reminders = [];
+    let importantEvents = []; // { title, time }
+    let competitionResults = {};
+    let winsCount = 0, lossesCount = 0;
+    let leagues = [], readingList = [], pdfUploads = [];
+    let teamMembers = [], inventoryItems = [];
+    let playerReviews = [];
+    let injuryRecords = [], practices = [], announcements = [];
+    let registeredEmail = "";
+    
+    function initPage() {
+      loadData();
+      updateDashboard();
+    }
+    
+    /* THEME & SIDEBAR TOGGLES */
+    function toggleTheme() { document.body.classList.toggle('light-theme'); }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('hidden'); }
+    
+    /* NAVIGATION */
+    function showSection(sectionId) {
+      document.querySelectorAll('section.content > section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+    }
+    function goToImportantEvents() { showSection('importantEvents'); }
+    
+    /* LOGIN & LOGOUT */
+    function login() {
+      const username = document.getElementById('coachUsername').value.trim();
+      const role = document.querySelector('input[name="userRole"]:checked').value;
+      if (!username) { alert("Please enter a username."); return; }
+      currentCoach = username;
+      userRole = role;
+      document.getElementById('headerTitle').textContent =
+        role === 'admin' ? "Essex Rebels Volleyball Admin Assistant" : "Essex Rebels Volleyball Coach Assistant";
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainContainer').style.display = 'flex';
+      document.getElementById('mainHeader').style.display = 'block';
+      loadData();
+      updateDashboard();
+      showSection('dashboard');
+    }
+    function logout() {
+      currentCoach = "";
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('mainContainer').style.display = 'none';
+      document.getElementById('mainHeader').style.display = 'none';
+    }
+    function resetData() {
+      if (confirm("Reset all data for " + currentCoach + "?")) {
+        localStorage.removeItem(getStorageKey());
+        tasks = []; matches = []; reminders = []; competitionResults = {};
+        winsCount = 0; lossesCount = 0; leagues = []; readingList = [];
+        pdfUploads = []; importantEvents = []; teamMembers = []; inventoryItems = [];
+        playerReviews = []; injuryRecords = []; practices = []; announcements = [];
+        registeredEmail = "";
+        document.getElementById('docText').value = "";
+        renderAll();
+        saveData();
+        updateDashboard();
+      }
+    }
+    
+    /* DATA PERSISTENCE */
+    function getStorageKey() {
+      return userRole === "admin" ? 'adminData_' + currentCoach : 'coachData_' + currentCoach;
+    }
+    function saveData() {
+      const data = {
+        tasks, matches, reminders, competitionResults,
+        winsCount, lossesCount, leagues, readingList, pdfUploads,
+        importantEvents, teamMembers, inventoryItems, playerReviews,
+        injuryRecords, practices, announcements, registeredEmail,
+        docText: document.getElementById('docText').value
+      };
+      localStorage.setItem(getStorageKey(), JSON.stringify(data));
+    }
+    function loadData() {
+      const data = JSON.parse(localStorage.getItem(getStorageKey()));
+      if (data) {
+        tasks = data.tasks || [];
+        matches = data.matches || [];
+        reminders = data.reminders || [];
+        competitionResults = data.competitionResults || {};
+        winsCount = data.winsCount || 0;
+        lossesCount = data.lossesCount || 0;
+        leagues = data.leagues || [];
+        readingList = data.readingList || [];
+        pdfUploads = data.pdfUploads || [];
+        importantEvents = data.importantEvents || [];
+        teamMembers = data.teamMembers || [];
+        inventoryItems = data.inventoryItems || [];
+        playerReviews = data.playerReviews || [];
+        injuryRecords = data.injuryRecords || [];
+        practices = data.practices || [];
+        announcements = data.announcements || [];
+        registeredEmail = data.registeredEmail || "";
+        document.getElementById('docText').value = data.docText || '';
+      }
+      renderAll();
+    }
+    function renderAll() {
+      renderTasks(); renderMatches(); renderReminders();
+      updateDashboardCountdowns();
+      updateDashboard();
+      renderImportantEvents();
+      renderInjuryRecords(); renderPractices();
+      renderAnnouncements(); renderCompetitionResults();
+      renderLeagues(); renderPDFUploads(); renderReadingList();
+      renderTeamMembers(); renderInventoryItems(); renderPlayerReviews();
+    }
+    
+    /* DASHBOARD FUNCTIONS */
+    function updateDashboard() {
+      // Updated dashboard uses the new layout.
+      drawWinLossChart();
+    }
+    function updateDashboardCountdowns() {
+      const list = document.getElementById('dashboardCountdownList');
+      if (!list) return;
+      list.innerHTML = "";
+      importantEvents.forEach(e => {
+        const li = document.createElement('li');
+        const diff = e.time - new Date().getTime();
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        li.textContent = `${e.title}: ${days} days left`;
+        list.appendChild(li);
+      });
+    }
+    setInterval(updateDashboardCountdowns, 1000);
+    function drawWinLossChart() {
+      const canvas = document.getElementById('winLossChart');
+      if (!canvas || !canvas.getContext) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const max = Math.max(winsCount, lossesCount, 1);
+      const winBarHeight = (winsCount / max) * 150;
+      const lossBarHeight = (lossesCount / max) * 150;
+      ctx.fillStyle = "#00cc66";
+      ctx.fillRect(50, 150 - winBarHeight, 50, winBarHeight);
+      ctx.fillStyle = "#ff3333";
+      ctx.fillRect(150, 150 - lossBarHeight, 50, lossBarHeight);
+      ctx.fillStyle = "#000";
+      ctx.font = "14px sans-serif";
+      ctx.fillText("Wins", 55, 165);
+      ctx.fillText("Losses", 145, 165);
+    }
+    
+    /* TASKS FUNCTIONS */
+    function addTask() {
+      const taskText = document.getElementById('taskInput').value.trim();
+      if (taskText) { tasks.push({ text: taskText, completed: false }); document.getElementById('taskInput').value = ""; renderTasks(); saveData(); }
+    }
+    function toggleTask(index) { tasks[index].completed = !tasks[index].completed; renderTasks(); saveData(); }
+    function deleteTask(index) { tasks.splice(index, 1); renderTasks(); saveData(); }
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = "";
+      tasks.forEach((task, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span ${task.completed ? 'style="text-decoration:line-through;"' : ""}>${task.text}</span>
+          <button onclick="toggleTask(${i})">Toggle</button>
+          <button onclick="deleteTask(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    
+    /* MATCHES FUNCTIONS */
+    function addMatch() {
+      const date = document.getElementById('matchDate').value;
+      const time = document.getElementById('matchTime').value;
+      const opponent = document.getElementById('matchOpponent').value;
+      const location = document.getElementById('matchLocation').value;
+      const type = document.getElementById('matchType').value;
+      if (date && time && opponent && location) {
+        // Create a combined date-time string (ISO format)
+        const dateTime = date + "T" + time;
+        matches.push({ date: dateTime, opponent, location, type, completed: false });
+        renderMatches(); renderCalendar(); updateNextMatchCountdown(); saveData();
+      }
+    }
+    function toggleMatch(i) { matches[i].completed = !matches[i].completed; renderMatches(); saveData(); }
+    function deleteMatch(i) { matches.splice(i, 1); renderMatches(); renderCalendar(); updateNextMatchCountdown(); saveData(); }
+    function renderMatches() {
+      const list = document.getElementById('matchList');
+      list.innerHTML = "";
+      matches.sort((a, b) => new Date(a.date) - new Date(b.date));
+      matches.forEach((m, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span ${m.completed ? 'style="text-decoration:line-through;"' : ""}>${new Date(m.date).toLocaleString()} - ${m.opponent} at ${m.location} (${m.type})</span>
+          <button onclick="toggleMatch(${i})">Toggle</button>
+          <button onclick="deleteMatch(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    function renderCalendar() {
+      const cal = document.getElementById('calendarContent');
+      cal.innerHTML = "";
+      if (!matches.length) { cal.textContent = "No matches scheduled."; return; }
+      [...matches].sort((a, b) => new Date(a.date) - new Date(b.date))
+        .forEach(m => {
+          const div = document.createElement('div');
+          div.textContent = `${new Date(m.date).toLocaleString()}: ${m.opponent} (${m.type}) at ${m.location}`;
+          cal.appendChild(div);
+        });
+    }
+    function updateNextMatchCountdown() {
+      const cd = document.getElementById('nextMatchCountdown');
+      if (!matches.length) { cd.textContent = "Next Match Countdown: Not Set"; return; }
+      const upcoming = matches.filter(m => new Date(m.date) > new Date());
+      if (!upcoming.length) { cd.textContent = "No upcoming matches."; return; }
+      upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
+      const next = upcoming[0];
+      const target = new Date(next.date).getTime();
+      function countdown() {
+        const now = new Date().getTime();
+        const diff = target - now;
+        if (diff <= 0) { cd.textContent = "Match is starting now!"; return; }
+        const days = Math.floor(diff / (1000*60*60*24));
+        const hours = Math.floor((diff % (1000*60*60*24))/(1000*60*60));
+        const minutes = Math.floor((diff % (1000*60*60))/(1000*60));
+        const seconds = Math.floor((diff % (1000*60))/1000);
+        cd.textContent = `Next Match in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+      countdown();
+      setInterval(countdown, 1000);
+    }
+    
+    /* IMPORTANT EVENTS FUNCTIONS */
+    function addImportantEvent() {
+      const title = document.getElementById('importantEventTitleInput').value.trim();
+      const dateInput = document.getElementById('importantDateInput').value;
+      if (title && dateInput) { 
+        importantEvents.push({ title, time: new Date(dateInput).getTime() }); 
+        document.getElementById('importantEventTitleInput').value = ""; 
+        document.getElementById('importantDateInput').value = ""; 
+        renderImportantEvents(); saveData(); 
+      }
+    }
+    function deleteImportantEvent(i) { importantEvents.splice(i,1); renderImportantEvents(); saveData(); }
+    function renderImportantEvents() {
+      const list = document.getElementById('importantEventsList');
+      list.innerHTML = "";
+      importantEvents.forEach((e, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${e.title}</strong> <span id="eventCountdown_${i}"></span> <button onclick="deleteImportantEvent(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    function updateImportantEventsCountdown() {
+      importantEvents.forEach((e, i) => {
+        const span = document.getElementById('eventCountdown_' + i);
+        if (!span) return;
+        const diff = e.time - new Date().getTime();
+        if (diff <= 0) { span.textContent = "It's time!"; return; }
+        const days = Math.floor(diff / (1000*60*60*24));
+        const hours = Math.floor((diff % (1000*60*60*24))/(1000*60*60));
+        const minutes = Math.floor((diff % (1000*60*60))/(1000*60));
+        const seconds = Math.floor((diff % (1000*60))/1000);
+        span.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      });
+    }
+    setInterval(updateImportantEventsCountdown, 1000);
+    
+    /* INJURY TRACKER FUNCTIONS */
+    function addInjuryRecord() {
+      const player = document.getElementById('injuryPlayerName').value.trim();
+      const injuryDate = document.getElementById('injuryDate').value;
+      const recoveryDate = document.getElementById('recoveryDate').value;
+      const notes = document.getElementById('injuryNotes').value.trim();
+      if (player && injuryDate && recoveryDate) {
+        injuryRecords.push({ player, injuryDate, recoveryDate, notes });
+        document.getElementById('injuryPlayerName').value = "";
+        document.getElementById('injuryDate').value = "";
+        document.getElementById('recoveryDate').value = "";
+        document.getElementById('injuryNotes').value = "";
+        renderInjuryRecords(); saveData();
+      } else {
+        alert("Please fill in all required fields.");
+      }
+    }
+    function deleteInjuryRecord(i) { injuryRecords.splice(i, 1); renderInjuryRecords(); saveData(); }
+    function renderInjuryRecords() {
+      const list = document.getElementById('injuryList');
+      list.innerHTML = "";
+      injuryRecords.forEach((record, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${record.player}: Injured on ${record.injuryDate}, Recovery by ${record.recoveryDate}. ${record.notes} <button onclick="deleteInjuryRecord(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    
+    /* PRACTICE MANAGEMENT FUNCTIONS */
+    function addPractice() {
+      const date = document.getElementById('practiceDate').value;
+      const drill = document.getElementById('drillName').value.trim();
+      const description = document.getElementById('drillDescription').value.trim();
+      if (date && drill) {
+        practices.push({ date, drill, description });
+        document.getElementById('practiceDate').value = "";
+        document.getElementById('drillName').value = "";
+        document.getElementById('drillDescription').value = "";
+        renderPractices(); saveData();
+      }
+    }
+    function deletePractice(i) { practices.splice(i, 1); renderPractices(); saveData(); }
+    function renderPractices() {
+      const list = document.getElementById('practiceList');
+      list.innerHTML = "";
+      practices.forEach((p, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${p.date} - ${p.drill}: ${p.description} <button onclick="deletePractice(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    
+    /* COMMUNICATION BOARD FUNCTIONS */
+    function registerEmail() {
+      const email = document.getElementById('commEmail').value.trim();
+      if (email) { registeredEmail = email; document.getElementById('registeredEmailDisplay').textContent = "Registered Email: " + registeredEmail; saveData(); }
+    }
+    function addAnnouncement() {
+      const msg = document.getElementById('announcementText').value.trim();
+      if (msg) { announcements.push({ msg, time: new Date().toLocaleString(), email: registeredEmail }); document.getElementById('announcementText').value = ""; renderAnnouncements(); saveData(); }
+    }
+    function deleteAnnouncement(i) { announcements.splice(i, 1); renderAnnouncements(); saveData(); }
+    function renderAnnouncements() {
+      const list = document.getElementById('announcementList');
+      list.innerHTML = "";
+      announcements.forEach((a, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${a.time} - ${a.msg} ${a.email ? "(by: " + a.email + ")" : ""} <button onclick="deleteAnnouncement(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    
+    /* DOCUMENT EDITOR FUNCTIONS */
+    function saveDocument() { saveData(); alert("Document saved!"); }
+    function exportDocumentToWord() {
+      const content = document.getElementById('docText').value;
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export Document</title></head><body>";
+      const footer = "</body></html>";
+      const sourceHTML = header + content + footer;
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      fileDownload.href = source;
+      fileDownload.download = 'document.doc';
+      fileDownload.click();
+    }
+    
+    /* WIN/LOSS & COMPETITIONS FUNCTIONS */
+    function adjustWinsTracker(v) { winsCount += v; updateWinLossTracker(); saveData(); }
+    function adjustLossesTracker(v) { lossesCount += v; updateWinLossTracker(); saveData(); }
+    function updateWinLossTracker() {
+      document.getElementById('winsCount').textContent = winsCount;
+      document.getElementById('lossesCount').textContent = lossesCount;
+    }
+    function addCompetition() {
+      const type = document.getElementById('competitionType').value;
+      if (!competitionResults[type]) { competitionResults[type] = { wins: 0, losses: 0 }; }
+      competitionResults[type].wins++;
+      renderCompetitionResults(); saveData();
+    }
+    function addNewCompetition() {
+      const newComp = document.getElementById('newCompetitionInput').value.trim();
+      if (newComp) {
+        leagues.push(newComp);
+        if (!competitionResults[newComp]) { competitionResults[newComp] = { wins: 0, losses: 0 }; }
+        const select = document.getElementById('competitionType');
+        const option = document.createElement('option');
+        option.value = newComp;
+        option.text = newComp;
+        select.appendChild(option);
+        document.getElementById('newCompetitionInput').value = "";
+        renderCompetitionResults(); saveData();
+      }
+    }
+    function renderCompetitionResults() {
+      const div = document.getElementById('competitionResults');
+      div.innerHTML = "<h3>Competition Results</h3>";
+      for (let comp in competitionResults) {
+        const res = competitionResults[comp];
+        const d = document.createElement('div');
+        d.style.border = "1px solid #444";
+        d.style.padding = "10px";
+        d.style.marginBottom = "10px";
+        d.innerHTML = `<strong>${comp}</strong><br>
+          Wins: ${res.wins} <button onclick="adjustCompetitionWins('${comp}',1)">+1</button>
+          <button onclick="adjustCompetitionWins('${comp}',-1)">-1</button><br>
+          Losses: ${res.losses} <button onclick="adjustCompetitionLosses('${comp}',1)">+1</button>
+          <button onclick="adjustCompetitionLosses('${comp}',-1)">-1</button>
+          <button onclick="deleteCompetition('${comp}')">Delete</button>`;
+        div.appendChild(d);
+      }
+    }
+    function adjustCompetitionWins(comp, v) {
+      if (!competitionResults[comp]) return;
+      competitionResults[comp].wins += v; renderCompetitionResults(); saveData();
+    }
+    function adjustCompetitionLosses(comp, v) {
+      if (!competitionResults[comp]) return;
+      competitionResults[comp].losses += v; renderCompetitionResults(); saveData();
+    }
+    function deleteCompetition(comp) {
+      if (confirm("Delete competition " + comp + "?")) {
+        delete competitionResults[comp];
+        leagues = leagues.filter(c => c !== comp);
+        renderCompetitionResults(); saveData();
+      }
+    }
+    
+    /* LEAGUES & TEAMS FUNCTIONS */
+    function addLeague() {
+      const name = document.getElementById('leagueNameInput').value.trim();
+      if (name) { leagues.push({ name, teams: [] }); document.getElementById('leagueNameInput').value = ""; renderLeagues(); saveData(); }
+    }
+    function addTeamToLeague(i) {
+      const teamName = document.getElementById('teamInput_' + i).value.trim();
+      if (teamName) { leagues[i].teams.push(teamName); document.getElementById('teamInput_' + i).value = ""; renderLeagues(); saveData(); }
+    }
+    function deleteLeague(i) {
+      if (confirm("Delete league " + leagues[i].name + "?")) { leagues.splice(i, 1); renderLeagues(); saveData(); }
+    }
+    function deleteTeamFromLeague(i, j) {
+      leagues[i].teams.splice(j, 1); renderLeagues(); saveData();
+    }
+    function renderLeagues() {
+      const container = document.getElementById('leaguesContainer');
+      container.innerHTML = "";
+      leagues.forEach((l, i) => {
+        const div = document.createElement('div');
+        div.innerHTML = `<h3>${l.name}</h3>
+          <input type="text" id="teamInput_${i}" placeholder="Add a team">
+          <button onclick="addTeamToLeague(${i})">Add Team</button>
+          <button onclick="deleteLeague(${i})">Delete League</button>`;
+        if (l.teams.length) {
+          const ul = document.createElement('ul');
+          l.teams.forEach((team, j) => {
+            const li = document.createElement('li');
+            li.innerHTML = `${team} <button onclick="deleteTeamFromLeague(${i}, ${j})">Delete Team</button>`;
+            ul.appendChild(li);
+          });
+          div.appendChild(ul);
+        }
+        container.appendChild(div);
+      });
+    }
+    
+    /* TEAM MANAGEMENT FUNCTIONS */
+    function addTeamMember() {
+      const name = document.getElementById('teamMemberName').value.trim();
+      const position = document.getElementById('teamMemberPosition').value.trim();
+      if (name) { teamMembers.push({ name, position }); document.getElementById('teamMemberName').value = ""; document.getElementById('teamMemberPosition').value = ""; renderTeamMembers(); saveData(); }
+    }
+    function editTeamMember(i) {
+      const newName = prompt("Edit team member name:", teamMembers[i].name);
+      const newPosition = prompt("Edit position/role:", teamMembers[i].position);
+      if (newName !== null && newPosition !== null) { teamMembers[i].name = newName.trim(); teamMembers[i].position = newPosition.trim(); renderTeamMembers(); saveData(); }
+    }
+    function deleteTeamMember(i) { teamMembers.splice(i, 1); renderTeamMembers(); saveData(); }
+    function renderTeamMembers() {
+      const list = document.getElementById('teamMembersList');
+      list.innerHTML = "";
+      teamMembers.forEach((member, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${member.name} - ${member.position} <button onclick="editTeamMember(${i})">Edit</button> <button onclick="deleteTeamMember(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    function exportTeamManagementToExcel() {
+      let csv = "Name,Position\n";
+      teamMembers.forEach(member => { csv += `${member.name},${member.position}\n`; });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'team_management.csv';
+      a.click();
+    }
+    
+    /* PLAYER REVIEWS FUNCTIONS */
+    function addPlayerReview() {
+      const playerName = document.getElementById('reviewPlayerName').value.trim();
+      const rating = document.getElementById('reviewRating').value;
+      const score = document.getElementById('reviewScore').value;
+      const review = document.getElementById('reviewText').value.trim();
+      if (playerName && review) { playerReviews.push({ playerName, rating, score, review }); document.getElementById('reviewPlayerName').value = ""; document.getElementById('reviewRating').value = ""; document.getElementById('reviewScore').value = ""; document.getElementById('reviewText').value = ""; renderPlayerReviews(); saveData(); }
+    }
+    function deletePlayerReview(i) { playerReviews.splice(i, 1); renderPlayerReviews(); saveData(); }
+    function renderPlayerReviews() {
+      const list = document.getElementById('playerReviewsList');
+      list.innerHTML = "";
+      playerReviews.forEach((pr, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${pr.playerName} (Rating: ${pr.rating}, Score: ${pr.score}): ${pr.review} <button onclick="deletePlayerReview(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    
+    /* INVENTORY TRACKER FUNCTIONS */
+    function addInventoryItem() {
+      const itemName = document.getElementById('inventoryItemName').value.trim();
+      const itemQuantity = document.getElementById('inventoryItemQuantity').value.trim();
+      if (itemName && itemQuantity) { inventoryItems.push({ name: itemName, quantity: itemQuantity }); document.getElementById('inventoryItemName').value = ""; document.getElementById('inventoryItemQuantity').value = ""; renderInventoryItems(); saveData(); }
+    }
+    function deleteInventoryItem(i) { inventoryItems.splice(i, 1); renderInventoryItems(); saveData(); }
+    function renderInventoryItems() {
+      const list = document.getElementById('inventoryList');
+      list.innerHTML = "";
+      inventoryItems.forEach((item, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${item.name} - Quantity: ${item.quantity} <button onclick="deleteInventoryItem(${i})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+    function exportInventoryToExcel() {
+      let csv = "Item Name,Quantity\n";
+      inventoryItems.forEach(item => { csv += `${item.name},${item.quantity}\n`; });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'inventory.csv';
+      a.click();
+    }
+    
+    /* PDF UPLOAD FUNCTIONS */
+    function handlePDFUpload(e) {
+      const files = e.target.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          pdfUploads.push({ name: file.name, dataURL: ev.target.result });
+          renderPDFUploads(); saveData();
+        }
+        reader.readAsDataURL(file);
+      }
+      e.target.value = "";
+    }
+    function renderPDFUploads() {
+      const pdfList = document.getElementById('pdfList');
+      pdfList.innerHTML = "";
+      pdfUploads.forEach((pdf, i) => {
+        const div = document.createElement('div');
+        div.style.marginBottom = "20px";
+        const p = document.createElement('p');
+        p.textContent = pdf.name;
+        div.appendChild(p);
+        const embed = document.createElement('embed');
+        embed.src = pdf.dataURL;
+        embed.type = "application/pdf";
+        embed.width = "100%";
+        embed.height = "600px";
+        div.appendChild(embed);
+        const btn = document.createElement('button');
+        btn.textContent = "Delete PDF";
+        btn.onclick = () => { deletePDF(i); }
+        div.appendChild(btn);
+        pdfList.appendChild(div);
+      });
+    }
+    function deletePDF(i) { pdfUploads.splice(i,1); renderPDFUploads(); saveData(); }
+    document.getElementById('pdfInput').addEventListener('change', handlePDFUpload);
+    
+    /* READING LIST FUNCTIONS */
+    function addReading() {
+      const readingItem = document.getElementById('readingInput').value.trim();
+      if (readingItem) { readingList.push(readingItem); document.getElementById('readingInput').value = ""; renderReadingList(); saveData(); }
+    }
+    function deleteReading(i) { readingList.splice(i, 1); renderReadingList(); saveData(); }
+    function renderReadingList() {
+      const ul = document.getElementById('readingListItems');
+      ul.innerHTML = "";
+      readingList.forEach((item, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${item} <button onclick="deleteReading(${i})">Delete</button>`;
+        ul.appendChild(li);
+      });
+    }
+    
+    /* DOCUMENT EDITOR FUNCTIONS */
+    function saveDocument() { saveData(); alert("Document saved!"); }
+    function exportDocumentToWord() {
+      const content = document.getElementById('docText').value;
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export Document</title></head><body>";
+      const footer = "</body></html>";
+      const sourceHTML = header + content + footer;
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      fileDownload.href = source;
+      fileDownload.download = 'document.doc';
+      fileDownload.click();
+    }
+    
+    /* END OF SCRIPT */
+    
+    /* NEW FUNCTION: Add Event Prompt (adds an event as a match so that it appears on the calendar) */
+    function addEventPrompt() {
+      const title = prompt("Enter event title:");
+      const date = prompt("Enter event date (YYYY-MM-DD):");
+      const time = prompt("Enter event time (HH:MM):");
+      if (title && date && time) {
+        const dateTime = date + "T" + time;
+        // Add event as a match with placeholder location and type "Event"
+        matches.push({ date: dateTime, opponent: title, location: "TBD", type: "Event", completed: false });
+        renderMatches();
+        renderCalendar();
+        updateNextMatchCountdown();
+        saveData();
+      }
+    }
+  </script>
+</body>
+</html>
+
